@@ -1,0 +1,20 @@
+<mat-toolbar>
+  <span>Kafka Utils</span>
+</mat-toolbar>
+
+<nav mat-tab-nav-bar [tabPanel]="tabPanel">
+  @for (navLink of navigationLinks; track navLink.link) {
+    <a
+      mat-tab-link
+      [disabled]="navLink.disabled"
+      [active]="activeNavLink === navLink"
+      [routerLink]="navLink.link"
+      (click)="activeNavLink = navLink"
+    >
+      {{ navLink.label }}
+    </a>
+  }
+</nav>
+<mat-tab-nav-panel #tabPanel>
+  <router-outlet />
+</mat-tab-nav-panel>

@@ -1,0 +1,18 @@
+<div>
+  <div>{{ title }}</div>
+  <div>
+    <pre>
+      @if (showLineNumbers) {
+        <code [highlightAuto]="showTruncated ? codeTruncated : codeFormatted" [class.code-wrap]="wrapCode" lineNumbers></code>
+      } @else {
+        <code [highlightAuto]="showTruncated ? codeTruncated : codeFormatted" [class.code-wrap]="wrapCode"></code>
+      }
+    </pre>
+
+    @if (codeTruncated) {
+      <button mat-button (click)="toggleShowTruncated()">
+        {{ showTruncated ? 'Show more' : 'Show less' }}
+      </button>
+    }
+  </div>
+</div>

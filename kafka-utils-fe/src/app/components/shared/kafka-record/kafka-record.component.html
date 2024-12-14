@@ -1,0 +1,44 @@
+<mat-card appearance="outlined" [class]="'card__variant--' + record.partition.toString()[0]">
+  <mat-card-header>
+    <mat-card-title>Message #{{ numberOfMessage }} of {{ numberOfTotalMessages }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-divider></mat-divider>
+
+  <mat-card-content>
+    @if (record.headers) {
+      <p>Header:</p>
+      <app-code-snippet
+        [code]="record.headers.toString()"
+        [showLineNumbers]="false"
+        [wrapCode]="true"
+        class="highlight-content"
+      >
+      </app-code-snippet>
+
+      <mat-divider></mat-divider>
+    }
+
+    @if (record.key) {
+      <p>Key:</p>
+      <app-code-snippet [code]="record.key" [showLineNumbers]="false" [wrapCode]="true" class="highlight-content">
+      </app-code-snippet>
+
+      <mat-divider></mat-divider>
+    }
+
+    <p>Value:</p>
+    <app-code-snippet [code]="record.value" [showLineNumbers]="false" [wrapCode]="true" class="highlight-content">
+    </app-code-snippet>
+  </mat-card-content>
+
+  <mat-divider></mat-divider>
+
+  <mat-card-footer>
+    <mat-chip-set aria-label="Record technical information" class="highlight-content">
+      <mat-chip>{{ record.timestamp | date: 'medium' }}</mat-chip>
+      <mat-chip>Partition: {{ record.partition }}</mat-chip>
+      <mat-chip>Offset: {{ record.offset }}</mat-chip>
+    </mat-chip-set>
+  </mat-card-footer>
+</mat-card>

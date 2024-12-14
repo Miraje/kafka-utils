@@ -1,0 +1,9 @@
+services:
+  frontend:
+    build: kafka-utils-fe
+    ports:
+      - 4300:80
+  backend:
+    build: kafka-utils-be
+    ports:
+      - 8083:8083

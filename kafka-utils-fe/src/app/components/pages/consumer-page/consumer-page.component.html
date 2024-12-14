@@ -1,0 +1,66 @@
+<section>
+  <form class="form">
+    <mat-form-field class="form__field form__field__code">
+      <mat-label>Consumer configuration properties</mat-label>
+      <textarea
+        matInput
+        cdkTextareaAutosize
+        spellcheck="false"
+        [(ngModel)]="configuration"
+        [ngModelOptions]="{ standalone: true }"
+      ></textarea>
+    </mat-form-field>
+
+    @for (error of responseErrors; track $index) {
+      <mat-error>{{ error }}</mat-error>
+    }
+  </form>
+
+  <div class="d-flex justify-content-end mb-4">
+    <button mat-flat-button (click)="consume()" [disabled]="isRequestInProgress">
+      @if (isRequestInProgress) {
+        <mat-spinner></mat-spinner>
+      } @else {
+        Consume
+      }
+    </button>
+  </div>
+</section>
+
+@if (filteredRecords?.length > 0 || searchQuery) {
+  <form class="form">
+    <mat-form-field appearance="outline" class="form__field form__field__input">
+      <mat-label>Search query</mat-label>
+      <input
+        matInput
+        type="search"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="filterRecords()"
+        [ngModelOptions]="{ standalone: true }"
+      />
+    </mat-form-field>
+  </form>
+
+  <section>
+    <div class="records">
+      @for (
+        record of filteredRecords | slice: paginatorFirstValue : paginatorLastValue;
+        track '' + record.partition + record.offset
+      ) {
+        <app-kafka-record
+          [record]="record"
+          [numberOfMessage]="paginatorFirstValue + $index + 1"
+          [numberOfTotalMessages]="filteredRecords.length"
+        ></app-kafka-record>
+      }
+    </div>
+    <mat-paginator
+      pageSize="20"
+      showFirstLastButtons="true"
+      [length]="filteredRecords.length"
+      [pageSizeOptions]="[10, 20, 30]"
+      (page)="getPaginatorData($event)"
+    >
+    </mat-paginator>
+  </section>
+}
