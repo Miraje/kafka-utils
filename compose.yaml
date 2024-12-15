@@ -1,9 +1,9 @@
 services:
   frontend:
-    build: kafka-utils-fe
+    image: mirajegentilal/kafka-utils-fe:latest
     ports:
       - 4300:80
   backend:
-    build: kafka-utils-be
+    image: mirajegentilal/kafka-utils-be:latest
     ports:
       - 8083:8083

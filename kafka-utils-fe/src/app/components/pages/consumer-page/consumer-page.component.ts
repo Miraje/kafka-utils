@@ -84,6 +84,13 @@ export class ConsumerPageComponent {
       .subscribe();
   }
 
+  highlightSearch() {
+    const query = this.getQueryValue()
+    query
+      ? setTimeout(() => HighlightUtils.highlight(query), 50)
+      : HighlightUtils.clear()
+  }
+
   getPaginatorData(event: PageEvent): PageEvent {
     this.paginatorFirstValue = event.pageIndex * event.pageSize;
     this.paginatorLastValue = this.paginatorFirstValue + event.pageSize;
@@ -98,11 +105,11 @@ export class ConsumerPageComponent {
     if (query) {
       this.filteredRecords = this.records.filter(
         (record) => {
-          return record.key?.includes(query) ||
-            record.value.includes(query) ||
-            ("partition: " + record.partition).includes(query) ||
-            ("offset: " + record.offset).includes(query) ||
-            new DatePipe("en-US").transform(record.timestamp, "medium").trim().toLowerCase().includes(query)
+          return this.includes(record.key, query) ||
+            this.includes(record.value, query) ||
+            this.includes(("Partition: " + record.partition), query) ||
+            this.includes(("Offset: " + record.offset), query) ||
+            this.includes( new DatePipe("en-US").transform(record.timestamp, "medium"), query)
         }
       )
 
@@ -157,10 +164,12 @@ export class ConsumerPageComponent {
     }
   }
 
-  private highlightSearch() {
-    const query = this.getQueryValue()
-    query
-      ? setTimeout(() => HighlightUtils.highlight(query), 50)
-      : HighlightUtils.clear()
+  private includes(toEvaluate: any, toContain: string): boolean {
+    if (!toEvaluate) return false
+
+    const toEvaluateTmp = toEvaluate.toString().trim().toLowerCase()
+    const toContainTmp = toContain.toString().trim().toLowerCase()
+
+    return toEvaluateTmp.includes(toContainTmp)
   }
 }
