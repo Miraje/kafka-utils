@@ -168,7 +168,7 @@ export class ConsumerPageComponent {
     }
   }
 
-  private includes(toEvaluate: any, toContain: string): boolean {
+  private includes(toEvaluate: unknown, toContain: string): boolean {
     if (!toEvaluate) return false
 
     const toEvaluateTmp = toEvaluate.toString().trim().toLowerCase()
