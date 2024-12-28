@@ -4,8 +4,14 @@ services:
       dockerfile: kafka-utils-fe/development.Dockerfile
     ports:
       - 4300:4200
+    volumes:
+      - ./kafka-utils-fe/src:/home/app/src
+      - node_modules:/home/app/node_modules
 
   backend:
     image: mirajegentilal/kafka-utils-be:latest
     ports:
       - 8083:8083
+
+volumes:
+  node_modules:
