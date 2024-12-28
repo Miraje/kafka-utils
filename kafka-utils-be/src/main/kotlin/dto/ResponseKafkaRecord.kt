@@ -25,7 +25,7 @@ fun ConsumerRecord<String, String>.toKafkaRecord() = ResponseKafkaRecord(
     timestamp = epochTimeMillisToLocalDateTime(this.timestamp()),
     timestampUnixMs = this.timestamp(),
     key = this.key(),
-    value = this.value()
+    value = this.value() ?: "No content found"
 )
 
 private fun epochTimeMillisToLocalDateTime(epochTimeMillis: Long): LocalDateTime {

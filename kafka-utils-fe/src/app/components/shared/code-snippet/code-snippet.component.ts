@@ -1,14 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Highlight, HighlightAuto } from 'ngx-highlightjs';
+import { HighlightAuto } from 'ngx-highlightjs';
 import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
-import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { MatButtonModule } from '@angular/material/button';
 import {JsonUtils} from "utils/JsonUtils";
 
 @Component({
   selector: 'app-code-snippet',
   standalone: true,
-  imports: [Highlight, HighlightAuto, HighlightLineNumbers, CdkTextareaAutosize, MatButtonModule],
+  imports: [HighlightAuto, HighlightLineNumbers, MatButtonModule],
   templateUrl: './code-snippet.component.html',
   styleUrl: './code-snippet.component.scss',
 })

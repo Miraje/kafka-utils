@@ -8,7 +8,6 @@ import {KafkaUtilsService} from 'services/kafka-utils.service';
 import {first, tap} from 'rxjs';
 import {KafkaRecord} from 'models/kafkaRecord.interface';
 import {MatGridListModule} from '@angular/material/grid-list';
-import {CodeSnippetComponent} from 'components/shared/code-snippet/code-snippet.component';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {GenericResponse} from 'models/genericResponse.interface';
 import {HttpErrorResponse} from '@angular/common/http';
@@ -29,7 +28,6 @@ import {HighlightUtils} from "utils/HighlightUtils";
     MatInputModule,
     MatGridListModule,
     KafkaRecordComponent,
-    CodeSnippetComponent,
     MatProgressSpinner,
     MatPaginator,
     SlicePipe,
@@ -64,6 +62,10 @@ export class ConsumerPageComponent {
   paginatorLastValue = 20;
 
   constructor(private kafkaUtilsService: KafkaUtilsService) {
+    // Stupid fix due Angular v19 bug
+    setTimeout(() => {
+      this.configuration = this.configuration + ' '
+    },1000)
   }
 
   consume() {
@@ -86,9 +88,11 @@ export class ConsumerPageComponent {
 
   highlightSearch() {
     const query = this.getQueryValue()
-    query
-      ? setTimeout(() => HighlightUtils.highlight(query), 50)
-      : HighlightUtils.clear()
+    if (query) {
+      setTimeout(() => HighlightUtils.highlight(query), 50)
+    } else {
+      HighlightUtils.clear()
+    }
   }
 
   getPaginatorData(event: PageEvent): PageEvent {
@@ -109,7 +113,7 @@ export class ConsumerPageComponent {
             this.includes(record.value, query) ||
             this.includes(("Partition: " + record.partition), query) ||
             this.includes(("Offset: " + record.offset), query) ||
-            this.includes( new DatePipe("en-US").transform(record.timestamp, "medium"), query)
+            this.includes(new DatePipe("en-US").transform(record.timestamp, "medium"), query)
         }
       )
 

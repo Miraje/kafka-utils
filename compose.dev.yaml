@@ -1,0 +1,11 @@
+services:
+  frontend:
+    build:
+      dockerfile: kafka-utils-fe/development.Dockerfile
+    ports:
+      - 4300:4200
+
+  backend:
+    image: mirajegentilal/kafka-utils-be:latest
+    ports:
+      - 8083:8083
