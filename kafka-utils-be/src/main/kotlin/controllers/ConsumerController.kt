@@ -13,8 +13,6 @@ import pt.miraje.dto.ResponseKafkaRecord
 import pt.miraje.dto.toSuccessResponse
 import pt.miraje.services.KafkaConsumerService
 import pt.miraje.utils.JsonMapper
-import java.io.InputStream
-
 
 
 fun Routing.consumerController() {

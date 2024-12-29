@@ -9,9 +9,14 @@ services:
       - node_modules:/home/app/node_modules
 
   backend:
-    image: mirajegentilal/kafka-utils-be:latest
+    build:
+      dockerfile: kafka-utils-be/development.Dockerfile
     ports:
       - 8083:8083
+    develop:
+      watch:
+        - path: ./kafka-utils-be/src
+          action: rebuild
 
 volumes:
   node_modules:

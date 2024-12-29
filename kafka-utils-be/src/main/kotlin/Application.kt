@@ -25,7 +25,8 @@ fun main(args: Array<String>) {
         port = 8083,
         module = {
             main()
-        }
+        },
+        watchPaths = listOf("classes")
     ).start(wait = true)
 }
 

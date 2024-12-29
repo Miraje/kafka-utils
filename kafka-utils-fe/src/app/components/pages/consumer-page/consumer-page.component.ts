@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -34,6 +34,8 @@ import {HighlightUtils} from "utils/HighlightUtils";
   ],
 })
 export class ConsumerPageComponent {
+  private kafkaUtilsService = inject(KafkaUtilsService);
+
   configuration =
     '{\n' +
     '\t"bootstrap.servers": "{{CLUSTER_BOOTSTRAP_SERVER}}",\n' +
@@ -61,11 +63,12 @@ export class ConsumerPageComponent {
   paginatorFirstValue = 0;
   paginatorLastValue = 20;
 
-  constructor(private kafkaUtilsService: KafkaUtilsService) {
-    // Stupid fix due Angular v19 bug
+
+  constructor() {
+    // Fom Angular v19 the autosize does not work on the first render (IDKW)
     setTimeout(() => {
       this.configuration = this.configuration + ' '
-    },1000)
+    },100)
   }
 
   consume() {
