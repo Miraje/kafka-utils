@@ -196,7 +196,7 @@ export class ConsumerPageComponent {
 
     this.filteredRecords = this.records;
 
-    setTimeout(() => this.searchBarYPosition = this.searchBarElementRef.nativeElement.offsetTop)
+    setTimeout(() => this.searchBarYPosition = this.searchBarElementRef.nativeElement.offsetTop, 100)
   }
 
   private getQueryValue() {
