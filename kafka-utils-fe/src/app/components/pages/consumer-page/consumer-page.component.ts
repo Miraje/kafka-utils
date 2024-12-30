@@ -1,8 +1,8 @@
-import {Component, inject} from '@angular/core';
+import {Component, ElementRef, HostListener, inject, ViewChild} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {FormsModule} from '@angular/forms';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {KafkaRecordComponent} from 'components/shared/kafka-record/kafka-record.component';
 import {KafkaUtilsService} from 'services/kafka-utils.service';
 import {first, tap} from 'rxjs';
@@ -15,6 +15,8 @@ import {JsonUtils} from 'utils/JsonUtils';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {DatePipe, SlicePipe} from '@angular/common';
 import {HighlightUtils} from "utils/HighlightUtils";
+import {MatIcon} from "@angular/material/icon";
+import {MatDividerModule} from "@angular/material/divider";
 
 @Component({
   selector: 'app-consumer-page',
@@ -31,12 +33,15 @@ import {HighlightUtils} from "utils/HighlightUtils";
     MatProgressSpinner,
     MatPaginator,
     SlicePipe,
+    MatIcon,
+    MatDividerModule,
+    ReactiveFormsModule
   ],
 })
 export class ConsumerPageComponent {
   private kafkaUtilsService = inject(KafkaUtilsService);
 
-  configuration =
+  private readonly configuration =
     '{\n' +
     '\t"bootstrap.servers": "{{CLUSTER_BOOTSTRAP_SERVER}}",\n' +
     '\t"ssl.endpoint.identification.algorithm": "https",\n' +
@@ -50,10 +55,18 @@ export class ConsumerPageComponent {
     '\t"max.poll.interval.ms": "300000",\n' +
     '\t"enable.auto.commit": "true",\n' +
     '\t"auto.offset.reset": "earliest",\n' +
-    '\t"application.id": "{{SERVICE_ACCOUNT_NAME}}",\n' +
     '\t"group.id": "{{CONSUMER_GROUP_NAME}}",\n' +
     '\t"input.topic.name": "{{TOPIC_NAME}}"\n' +
     '}';
+
+  form: FormGroup<{
+    apiKey: FormControl<string>;
+    bootstrapServers: FormControl<string>;
+    groupId: FormControl<string>;
+    topicName: FormControl<string>;
+    apiSecret: FormControl<string>
+  }>;
+
   searchQuery: string;
   records: KafkaRecord[] = [];
   filteredRecords: KafkaRecord[] = [];
@@ -63,25 +76,45 @@ export class ConsumerPageComponent {
   paginatorFirstValue = 0;
   paginatorLastValue = 20;
 
+  searchBarYPosition: number;
+  isSearchBarSticky = false;
+
+  @ViewChild('searchBar') searchBarElementRef: ElementRef;
+
 
   constructor() {
-    // Fom Angular v19 the autosize does not work on the first render (IDKW)
-    setTimeout(() => {
-      this.configuration = this.configuration + ' '
-    },100)
+    this.form = new FormGroup({
+      topicName: new FormControl(null, [Validators.required]),
+      apiKey: new FormControl(null, [Validators.required]),
+      apiSecret: new FormControl(null, [Validators.required]),
+      bootstrapServers: new FormControl(null, [Validators.required]),
+      groupId: new FormControl(null, [Validators.required]),
+    })
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  handleScroll() {
+    this.isSearchBarSticky = window.scrollY >= this.searchBarYPosition;
   }
 
   consume() {
     this.cleanup(true);
 
-    if (!JsonUtils.isJson(this.configuration)) {
-      this.responseErrors = ['Invalid JSON configuration'];
+    const config = this.configuration
+      .replace("{{TOPIC_NAME}}", this.form.controls.topicName.value)
+      .replace("{{CLUSTER_BOOTSTRAP_SERVER}}", this.form.controls.bootstrapServers.value)
+      .replace("{{API_KEY}}", this.form.controls.apiKey.value)
+      .replace("{{API_SECRET}}", this.form.controls.apiSecret.value)
+      .replace("{{CONSUMER_GROUP_NAME}}", this.form.controls.groupId.value)
+
+    if (!JsonUtils.isJson(config)) {
+      this.responseErrors = ['Invalid configuration'];
       return;
     }
 
     this.isRequestInProgress = true;
     this.kafkaUtilsService
-      .consume$(this.configuration)
+      .consume$(config)
       .pipe(
         first(),
         tap((response) => this.processResponse(response)),
@@ -94,7 +127,7 @@ export class ConsumerPageComponent {
     if (query) {
       setTimeout(() => HighlightUtils.highlight(query), 50)
     } else {
-      HighlightUtils.clear()
+      setTimeout(() => HighlightUtils.clear(), 50)
     }
   }
 
@@ -109,6 +142,7 @@ export class ConsumerPageComponent {
     this.cleanup();
 
     const query = this.getQueryValue()
+
     if (query) {
       this.filteredRecords = this.records.filter(
         (record) => {
@@ -131,7 +165,7 @@ export class ConsumerPageComponent {
     this.paginatorFirstValue = 0;
     this.paginatorLastValue = 20;
 
-    HighlightUtils.clear()
+    setTimeout(() => HighlightUtils.clear(), 50)
   }
 
   private processResponse(response: GenericResponse<KafkaRecord[]>) {
@@ -161,6 +195,8 @@ export class ConsumerPageComponent {
       .reverse();
 
     this.filteredRecords = this.records;
+
+    setTimeout(() => this.searchBarYPosition = this.searchBarElementRef.nativeElement.offsetTop)
   }
 
   private getQueryValue() {

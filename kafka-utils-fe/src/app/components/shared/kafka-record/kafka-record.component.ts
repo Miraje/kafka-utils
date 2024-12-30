@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { KafkaRecord } from 'models/kafkaRecord.interface';
@@ -27,4 +27,10 @@ export class KafkaRecordComponent {
   @Input() record: KafkaRecord;
   @Input() numberOfMessage: number;
   @Input() numberOfTotalMessages: number;
+
+  @Output() showTruncatedToggled = new EventEmitter<boolean>()
+
+  onShowTruncatedToggled(eventValue: boolean) {
+    this.showTruncatedToggled.emit(eventValue)
+  }
 }

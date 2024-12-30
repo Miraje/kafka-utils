@@ -12,6 +12,7 @@
         [code]="record.headers.toString()"
         [showLineNumbers]="false"
         [wrapCode]="true"
+        (showTruncatedToggled)="onShowTruncatedToggled($event)"
         class="highlight-content"
       >
       </app-code-snippet>
@@ -21,14 +22,24 @@
 
     @if (record.key) {
       <p>Key:</p>
-      <app-code-snippet [code]="record.key" [showLineNumbers]="false" [wrapCode]="true" class="highlight-content">
+      <app-code-snippet
+        [code]="record.key"
+        [showLineNumbers]="false"
+        [wrapCode]="true"
+        (showTruncatedToggled)="onShowTruncatedToggled($event)"
+        class="highlight-content">
       </app-code-snippet>
 
       <mat-divider></mat-divider>
     }
 
     <p>Value:</p>
-    <app-code-snippet [code]="record.value" [showLineNumbers]="false" [wrapCode]="true" class="highlight-content">
+    <app-code-snippet
+      [code]="record.value"
+      [showLineNumbers]="false"
+      [wrapCode]="true"
+      (showTruncatedToggled)="onShowTruncatedToggled($event)"
+      class="highlight-content">
     </app-code-snippet>
   </mat-card-content>
 

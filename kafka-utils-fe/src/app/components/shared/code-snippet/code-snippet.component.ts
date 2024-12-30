@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { HighlightAuto } from 'ngx-highlightjs';
 import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +17,8 @@ export class CodeSnippetComponent implements OnInit {
   @Input() wrapCode = false;
   @Input() minVisibleLines = 10;
   @Input() showLineNumbers = true;
+
+  @Output() showTruncatedToggled = new EventEmitter<boolean>();
 
   codeFormatted: string;
   codeTruncated: string;
@@ -43,5 +45,6 @@ export class CodeSnippetComponent implements OnInit {
 
   toggleShowTruncated() {
     this.showTruncated = !this.showTruncated;
+    this.showTruncatedToggled.emit(this.showTruncated)
   }
 }

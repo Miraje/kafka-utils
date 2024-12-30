@@ -1,59 +1,112 @@
 <section>
-  <form class="form">
-    <mat-form-field class="form__field form__field__code">
-      <mat-label>Consumer configuration properties</mat-label>
-      <textarea
-        matInput
-        cdkTextareaAutosize
-        spellcheck="false"
-        name="configuration"
-        [(ngModel)]="configuration"
-      ></textarea>
-    </mat-form-field>
 
-    @for (error of responseErrors; track $index) {
-      <mat-error>{{ error }}</mat-error>
-    }
-  </form>
+  <h1>Configurations</h1>
 
-  <div class="d-flex justify-content-end mb-4">
-    <button mat-flat-button (click)="consume()" [disabled]="isRequestInProgress">
-      @if (isRequestInProgress) {
-        <mat-spinner></mat-spinner>
-      } @else {
-        Consume
+  <form autocomplete="off" (ngSubmit)="consume()" class="form">
+    <div class="row">
+      <mat-form-field appearance="outline" class="form__field col-12 col-md-6">
+        <mat-label>Topic name</mat-label>
+        <input matInput [formControl]="form.controls.topicName" [required]="true">
+        <mat-hint>Name of the Topic to be consumed</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form__field col-12 col-md-6 order-md-2">
+        <mat-label>API key</mat-label>
+        <input matInput [formControl]="form.controls.apiKey" [required]="true">
+        <mat-hint>
+          Username that will be used in JAAS login context parameters for SASL connections.
+          <a mat-icon-button aria-label="Open documentation"
+             href="https://kafka.apache.org/documentation/#consumerconfigs_sasl.jaas.config" target="_blank">
+            <mat-icon>open_in_new</mat-icon>
+          </a>
+        </mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form__field col-12 col-md-6 order-md-4">
+        <mat-label>API secret</mat-label>
+        <input matInput [formControl]="form.controls.apiSecret" [required]="true">
+        <mat-hint>
+          Password that will be used in JAAS login context parameters for SASL connections.
+          <a mat-icon-button aria-label="Open documentation"
+             href="https://kafka.apache.org/documentation/#consumerconfigs_sasl.jaas.config" target="_blank">
+            <mat-icon>open_in_new</mat-icon>
+          </a>
+        </mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form__field col-12 col-md-6 order-md-1">
+        <mat-label>bootstrap.servers</mat-label>
+        <input matInput [formControl]="form.controls.bootstrapServers" [required]="true">
+        <mat-hint>
+          A list of host/port pairs used to establish the initial connection to the Kafka cluster.
+          <a mat-icon-button aria-label="Open documentation"
+             href="https://kafka.apache.org/documentation/#consumerconfigs_bootstrap.servers" target="_blank">
+            <mat-icon>open_in_new</mat-icon>
+          </a>
+        </mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form__field col-12 col-md-6 order-md-3">
+        <mat-label>group.id</mat-label>
+        <input matInput [formControl]="form.controls.groupId" [required]="true">
+        <mat-hint>
+          A unique string that identifies the consumer group this consumer belongs to.
+          <a mat-icon-button aria-label="Open documentation"
+             href="https://kafka.apache.org/documentation/#consumerconfigs_group.id" target="_blank">
+            <mat-icon>open_in_new</mat-icon>
+          </a>
+        </mat-hint>
+      </mat-form-field>
+    </div>
+
+    <div class="d-flex justify-content-end mb-4">
+      <button mat-flat-button type="submit" [disabled]="form.invalid || isRequestInProgress">
+        @if (isRequestInProgress) {
+          <mat-spinner></mat-spinner>
+        } @else {
+          Consume
+        }
+      </button>
+    </div>
+
+    <div>
+      @for (error of responseErrors; track $index) {
+        <mat-error>{{ error }}</mat-error>
       }
-    </button>
-  </div>
+    </div>
+  </form>
 </section>
 
 @if (filteredRecords?.length > 0 || searchQuery) {
-  <form class="form">
-    <mat-form-field appearance="outline" class="form__field form__field__input">
-      <mat-label>Search query</mat-label>
-      <input
-        matInput
-        type="search"
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="filterRecords()"
-        [ngModelOptions]="{ standalone: true }"
-      />
-    </mat-form-field>
-    <button mat-flat-button (click)="highlightSearch()" class="ms-3">
-        Highlight search
-    </button>
-  </form>
+
+  <mat-divider></mat-divider>
+
+  <div #searchBar [class.sticky-bar]="isSearchBarSticky">
+     <h1>Records</h1>
+
+    <form class="form">
+      <mat-form-field appearance="outline" class="form__field form__field__input">
+        <mat-label>Search query</mat-label>
+        <input
+          matInput
+          type="search"
+          name="query"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="filterRecords()"
+        />
+      </mat-form-field>
+    </form>
+  </div>
 
   <section>
     <div class="records">
-      @for (
-        record of filteredRecords | slice: paginatorFirstValue : paginatorLastValue;
-        track '' + record.partition + record.offset
-      ) {
+      @for (record of filteredRecords | slice: paginatorFirstValue : paginatorLastValue;
+        track '' + record.partition + record.offset) {
         <app-kafka-record
           [record]="record"
           [numberOfMessage]="paginatorFirstValue + $index + 1"
           [numberOfTotalMessages]="filteredRecords.length"
+          (showTruncatedToggled)="highlightSearch()"
         ></app-kafka-record>
       }
     </div>
