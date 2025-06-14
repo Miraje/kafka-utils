@@ -14,6 +14,10 @@ mat-card-footer {
   padding: 0 1rem 1rem;
 }
 
+.card--tombstone {
+  filter: brightness(0.9);
+}
+
 /*
 .card__variant {
   &--1 {

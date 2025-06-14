@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { KafkaRecord } from 'models/kafkaRecord.interface';
+import { KafkaRecord } from 'models/kafka-record.interface';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { DatePipe } from '@angular/common';
