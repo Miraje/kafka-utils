@@ -20,11 +20,23 @@
 .sticky-bar {
   position: fixed;
   top: 0;
+  left: 0;
   overflow: hidden;
   z-index: 10;
   width: 100%;
+  padding-left: 2rem;
   background: white;
   border-bottom: 1px solid black;
+  box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.75);
+}
+
+mat-drawer {
+  border-radius: 0;
+  border-right: 1px solid;
+}
+
+mat-drawer-content {
+  padding-left: 2rem !important;
 }
 
 mat-hint {

@@ -1,4 +1,4 @@
-import {Component, ElementRef, HostListener, inject, ViewChild} from '@angular/core';
+import {Component, ElementRef, HostListener, inject, OnInit, ViewChild} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -6,10 +6,10 @@ import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} fr
 import {KafkaRecordComponent} from 'components/shared/kafka-record/kafka-record.component';
 import {KafkaUtilsService} from 'services/kafka-utils.service';
 import {first, tap} from 'rxjs';
-import {KafkaRecord} from 'models/kafkaRecord.interface';
+import {KafkaRecord} from 'models/kafka-record.interface';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
-import {GenericResponse} from 'models/genericResponse.interface';
+import {GenericResponse} from 'models/generic-response.interface';
 import {HttpErrorResponse} from '@angular/common/http';
 import {JsonUtils} from 'utils/JsonUtils';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
@@ -17,6 +17,17 @@ import {DatePipe, SlicePipe} from '@angular/common';
 import {HighlightUtils} from "utils/HighlightUtils";
 import {MatIcon} from "@angular/material/icon";
 import {MatDividerModule} from "@angular/material/divider";
+import {MatDrawer, MatDrawerContainer, MatDrawerContent} from "@angular/material/sidenav";
+import {MatActionList, MatListItem} from "@angular/material/list";
+import {
+  ConsumerConfiguration,
+  ConsumerConfigurationForm,
+  fromFormToConsumerConfiguration, updateFormFrommConfiguration
+} from "models/consumer-configuration.interface";
+import {ConfigurationUtils} from "utils/ConfigurationUtils";
+import {MatDialog} from "@angular/material/dialog";
+import {GenericDialogComponent} from "components/shared/confirmation-dialog/generic-dialog.component";
+import {MatSlideToggle} from "@angular/material/slide-toggle";
 
 @Component({
   selector: 'app-consumer-page',
@@ -35,10 +46,17 @@ import {MatDividerModule} from "@angular/material/divider";
     SlicePipe,
     MatIcon,
     MatDividerModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatDrawer,
+    MatDrawerContainer,
+    MatDrawerContent,
+    MatActionList,
+    MatListItem,
+    MatSlideToggle,
   ],
 })
-export class ConsumerPageComponent {
+export class ConsumerPageComponent implements OnInit {
+  private dialog = inject(MatDialog);
   private kafkaUtilsService = inject(KafkaUtilsService);
 
   private readonly configuration =
@@ -50,8 +68,6 @@ export class ConsumerPageComponent {
     '\t"sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username=\\"{{API_KEY}}\\" password=\\"{{API_SECRET}}\\";",\n' +
     '\t"key.deserializer": "org.apache.kafka.common.serialization.StringDeserializer",\n' +
     '\t"value.deserializer": "org.apache.kafka.common.serialization.StringDeserializer",\n' +
-    '\t"key.serializer": "org.apache.kafka.common.serialization.StringSerializer",\n' +
-    '\t"value.serializer": "org.apache.kafka.common.serialization.StringSerializer",\n' +
     '\t"max.poll.interval.ms": "300000",\n' +
     '\t"enable.auto.commit": "true",\n' +
     '\t"auto.offset.reset": "earliest",\n' +
@@ -59,13 +75,12 @@ export class ConsumerPageComponent {
     '\t"input.topic.name": "{{TOPIC_NAME}}"\n' +
     '}';
 
-  form: FormGroup<{
-    apiKey: FormControl<string>;
-    bootstrapServers: FormControl<string>;
-    groupId: FormControl<string>;
-    topicName: FormControl<string>;
-    apiSecret: FormControl<string>
-  }>;
+  private readonly consumerConfigurationKey = 'kakfaUtils.consumerConfigurations'
+
+  consumerConfigurationsAreVisible = true
+  consumerConfigurations: ConsumerConfiguration[]
+
+  form: FormGroup<ConsumerConfigurationForm>;
 
   searchQuery: string;
   records: KafkaRecord[] = [];
@@ -83,7 +98,22 @@ export class ConsumerPageComponent {
 
 
   constructor() {
+    this.newConfiguration()
+  }
+
+  ngOnInit(): void {
+    this.consumerConfigurations = ConfigurationUtils.get(this.consumerConfigurationKey)
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  handleScroll() {
+    this.isSearchBarSticky = window.scrollY >= this.searchBarYPosition;
+  }
+
+  newConfiguration() {
     this.form = new FormGroup({
+      id: new FormControl(null),
+      name: new FormControl(null),
       topicName: new FormControl(null, [Validators.required]),
       apiKey: new FormControl(null, [Validators.required]),
       apiSecret: new FormControl(null, [Validators.required]),
@@ -92,9 +122,33 @@ export class ConsumerPageComponent {
     })
   }
 
-  @HostListener('window:scroll', ['$event'])
-  handleScroll() {
-    this.isSearchBarSticky = window.scrollY >= this.searchBarYPosition;
+  saveConfiguration() {
+    if (!this.form.controls.name.value) {
+      this.dialog.open(GenericDialogComponent, {
+        width: '500px',
+        data: {
+          header: 'Error',
+          title: 'A name is required to save the configuration',
+          message: 'Define a name before saving the configuration.',
+          positiveLabel: 'Ok',
+        },
+      });
+      return
+    }
+    const configurationToUpdate = fromFormToConsumerConfiguration(this.form)
+    this.consumerConfigurations = ConfigurationUtils.addOrUpdate(configurationToUpdate, this.consumerConfigurationKey)
+  }
+
+  deleteConfiguration() {
+    const configurationToRemove = fromFormToConsumerConfiguration(this.form)
+    this.consumerConfigurations = ConfigurationUtils.remove(configurationToRemove, this.consumerConfigurationKey)
+
+    this.newConfiguration()
+  }
+
+  selectConfiguration(configuration: ConsumerConfiguration) {
+    this.newConfiguration()
+    updateFormFrommConfiguration(this.form, configuration)
   }
 
   consume() {
@@ -147,7 +201,7 @@ export class ConsumerPageComponent {
       this.filteredRecords = this.records.filter(
         (record) => {
           return this.includes(record.key, query) ||
-            this.includes(record.value, query) ||
+            this.includes(record.value ?? "", query) ||
             this.includes(("Partition: " + record.partition), query) ||
             this.includes(("Offset: " + record.offset), query) ||
             this.includes(new DatePipe("en-US").transform(record.timestamp, "medium"), query)
@@ -186,8 +240,8 @@ export class ConsumerPageComponent {
         const key = record.key?.startsWith('\u0000')
           ? record.key.substring(5, record.key.length)
           : record.key;
-        const value = record.value.startsWith('\u0000')
-          ? record.value.substring(5, record.value.length)
+        const value = record.value?.startsWith('\u0000')
+          ? record.value?.substring(5, record.value.length)
           : record.value;
         return {...record, key: key, value: value};
       })
