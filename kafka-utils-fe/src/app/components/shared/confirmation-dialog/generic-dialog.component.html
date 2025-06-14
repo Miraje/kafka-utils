@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>{{ data.header }}</h2>
+
+<mat-dialog-content class="mat-typography">
+  @if (data.title) {
+    <h3>{{ data.title }}</h3>
+  }
+  <p [innerHTML]="data.message"></p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  @if (data.negativeLabel) {
+    <button mat-button mat-dialog-close [mat-dialog-close]="false">
+      {{ data.negativeLabel }}
+    </button>
+  }
+  @if (data.positiveLabel) {
+    <button mat-button [mat-dialog-close]="true" cdkFocusInitial>
+      {{ data.positiveLabel }}
+    </button>
+  }
+</mat-dialog-actions>
