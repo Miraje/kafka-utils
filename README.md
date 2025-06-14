@@ -56,10 +56,12 @@ To run the application in production mode:
 
 1. Build and run the services using Docker Compose:
    ```bash
+   docker compose pull
    docker compose up
    ```
    Or
    ```bash
+   docker compose pull
    docker compose up -d
    ```
 
