@@ -14,7 +14,7 @@ data class ResponseKafkaRecord(
     val timestamp: LocalDateTime,
     val timestampUnixMs: Long,
     val key: String?,
-    val value: String,
+    val value: String?,
 )
 
 fun ConsumerRecord<String, String>.toKafkaRecord() = ResponseKafkaRecord(
@@ -25,7 +25,7 @@ fun ConsumerRecord<String, String>.toKafkaRecord() = ResponseKafkaRecord(
     timestamp = epochTimeMillisToLocalDateTime(this.timestamp()),
     timestampUnixMs = this.timestamp(),
     key = this.key(),
-    value = this.value() ?: "No content found"
+    value = this.value()
 )
 
 private fun epochTimeMillisToLocalDateTime(epochTimeMillis: Long): LocalDateTime {

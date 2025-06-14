@@ -1,0 +1,38 @@
+.form {
+  min-width: 10rem;
+
+  &__field {
+    margin-bottom: 2rem;
+
+    &__input {
+      width: 100%;
+      max-width: 40rem;
+    }
+  }
+}
+
+mat-drawer {
+  border-radius: 0;
+  border-right: 1px solid;
+}
+
+mat-drawer-content {
+  padding-left: 2rem !important;
+}
+
+mat-hint {
+  --mdc-icon-button-icon-size: 1rem;
+
+  display: flex;
+  align-items: center;
+  min-height: 2.5rem;
+
+  a {
+    margin-left: 0.25rem;
+  }
+}
+
+mat-spinner {
+  height: 1.5rem !important;
+  width: 3rem !important;
+}

@@ -3,18 +3,19 @@
 </mat-toolbar>
 
 <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-  @for (navLink of navigationLinks; track navLink.link) {
+  @for (navLink of navigationLinks; track $index) {
     <a
       mat-tab-link
+      routerLinkActive
+      #rla="routerLinkActive"
       [disabled]="navLink.disabled"
-      [active]="activeNavLink === navLink"
       [routerLink]="navLink.link"
-      (click)="activeNavLink = navLink"
+      [active]="rla.isActive"
     >
       {{ navLink.label }}
     </a>
   }
 </nav>
 <mat-tab-nav-panel #tabPanel>
-  <router-outlet />
+  <router-outlet/>
 </mat-tab-nav-panel>

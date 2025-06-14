@@ -16,13 +16,6 @@ export const routes: Routes = [
   {
     path: LINKS.PRODUCER_PAGE,
     component: ProducerPageComponent,
-    canActivate: [
-      () => {
-        const router = inject(Router);
-        router.navigate([LINKS.CONSUMER_PAGE]);
-        return false;
-      },
-    ],
   },
   {
     path: LINKS.CONSUMER_GROUP_PAGE,
