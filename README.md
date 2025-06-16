@@ -4,9 +4,9 @@ This application includes is a component designed to interact with Kafka cluster
 
 ## Current Features:
 - View Kafka messages using a configuration.
+- Produce Kafka messages directly from the application.
 
 ## Planned Features:
-- Produce Kafka messages directly from the application.
 - Monitor and analyze consumer groups.
 
 ---
